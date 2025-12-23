@@ -1,0 +1,12 @@
+[submodule "platform"]
+	path = platform
+	url = https://github.com/MentisHub/platform.git
+	branch = main
+[submodule "assistant"]
+	path = assistant
+	url = https://github.com/MentisHub/assistant.git
+	branch = main
+[submodule "fl-app"]
+	path = fl-app
+	url = https://github.com/MentisHub/fl-app.git
+	branch = main

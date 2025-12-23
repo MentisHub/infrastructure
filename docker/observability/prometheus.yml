@@ -1,0 +1,47 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'mentishub-dev'
+    environment: 'development'
+
+scrape_configs:
+  # OpenTelemetry Collector metrics
+  - job_name: 'otel-collector'
+    static_configs:
+      - targets: ['otel-collector:8889']
+        labels:
+          service: 'otel-collector'
+
+  # Self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+        labels:
+          service: 'prometheus'
+
+  # Backend service (if it exposes metrics)
+  - job_name: 'backend'
+    static_configs:
+      - targets: ['backend:3000']
+        labels:
+          service: 'backend'
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+
+  # WebSocket service (if it exposes metrics)
+  - job_name: 'websocket'
+    static_configs:
+      - targets: ['websocket:3002']
+        labels:
+          service: 'websocket'
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+
+  # Grafana
+  - job_name: 'grafana'
+    static_configs:
+      - targets: ['grafana:3000']
+        labels:
+          service: 'grafana'
+    metrics_path: '/metrics'
