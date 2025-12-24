@@ -1,9 +1,9 @@
 include:
-  - path: ../../assistant/docker-compose.infrastructure.yml
-    env_file: ../environments/.env.dev
+  - path: ../../assistant/docker/docker-compose.dev.yml
+    env_file: ../env/.env.dev
 
   - path: ../../platform/docker/docker-compose.dev.yml
-    env_file: ../environments/.env.dev
+    env_file: ../env/.env.dev
 
 services:
   supabase-db:
@@ -13,7 +13,8 @@ services:
       - "${POSTGRES_PORT}:5432"
     volumes:
       - supabase_db_data:/var/lib/postgresql/data
-      - ../supabase/init-scripts/roles.sql:/docker-entrypoint-initdb.d/init-scripts/98-roles.sql:Z
+      - ../supabase/init-scripts/roles.sql:/docker-entrypoint-initdb.d/init-scripts/97-roles.sql:Z
+      - ../supabase/init-scripts/schemas.sql:/docker-entrypoint-initdb.d/init-scripts/98-schemas.sql:Z
       - ../supabase/init-scripts/service_account.sql:/docker-entrypoint-initdb.d/init-scripts/99-service-account.sql:Z
       - ../supabase/init-scripts/jwt.sql:/docker-entrypoint-initdb.d/init-scripts/99-jwt.sql:Z
     environment:
@@ -119,7 +120,6 @@ services:
     volumes:
       - supabase_storage_data:/var/lib/storage:z
     environment:
-      ANON_KEY: ${ANON_KEY}
       SERVICE_KEY: ${SERVICE_ROLE_KEY}
       POSTGREST_URL: http://supabase-rest:3000
       PGRST_JWT_SECRET: ${JWT_SECRET}
@@ -157,13 +157,12 @@ services:
       - "${KONG_HTTP_PORT}:8000"
       - "${KONG_HTTPS_PORT}:8443"
     volumes:
-      - ./supabase/kong.yml:/home/kong/kong.yml:ro
+      - ../supabase/kong.yml:/home/kong/kong.yml:ro
     environment:
       KONG_DATABASE: "off"
       KONG_DECLARATIVE_CONFIG: /home/kong/kong.yml
       KONG_DNS_ORDER: LAST,A,CNAME
       KONG_PLUGINS: request-transformer,cors,key-auth,acl
-      SUPABASE_ANON_KEY: ${ANON_KEY}
       SUPABASE_SERVICE_KEY: ${SERVICE_ROLE_KEY}
     depends_on:
       supabase-auth:
@@ -191,7 +190,6 @@ services:
 
       SUPABASE_URL: http://supabase-kong:8000
       SUPABASE_PUBLIC_URL: ${SUPABASE_PUBLIC_URL}
-      SUPABASE_ANON_KEY: ${ANON_KEY}
       SUPABASE_SERVICE_KEY: ${SERVICE_ROLE_KEY}
       AUTH_JWT_SECRET: ${JWT_SECRET}
 

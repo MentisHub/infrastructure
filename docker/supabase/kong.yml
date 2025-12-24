@@ -2,21 +2,15 @@ _format_version: '2.1'
 _transform: true
 
 consumers:
-  - username: anon
-    keyauth_credentials:
-      - key: ${SUPABASE_ANON_KEY}
   - username: service_role
     keyauth_credentials:
       - key: ${SUPABASE_SERVICE_KEY}
 
 acls:
-  - consumer: anon
-    group: anon
   - consumer: service_role
     group: admin
 
 services:
-  # Auth routes
   - name: auth-v1-open
     url: http://supabase-auth:9999/verify
     routes:
@@ -64,9 +58,7 @@ services:
           hide_groups_header: true
           allow:
             - admin
-            - anon
 
-  # REST routes
   - name: rest-v1
     url: http://supabase-rest:3000/
     routes:
@@ -84,9 +76,7 @@ services:
           hide_groups_header: true
           allow:
             - admin
-            - anon
 
-  # Storage routes
   - name: storage-v1
     url: http://supabase-storage:5000/
     routes:
@@ -115,7 +105,6 @@ services:
           allow:
             - admin
 
-  # Studio dashboard
   - name: dashboard
     url: http://supabase-studio:3000/
     routes:
