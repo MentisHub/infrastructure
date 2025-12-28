@@ -1,3 +1,5 @@
+name: mentishub
+
 include:
   - path: ../../assistant/docker/docker-compose.dev.yml
     env_file: ../env/.env.dev
@@ -160,6 +162,7 @@ services:
       - ../supabase/kong.yml:/home/kong/kong.yml:ro
     environment:
       KONG_DATABASE: "off"
+      KONG_VAULTS: env
       KONG_DECLARATIVE_CONFIG: /home/kong/kong.yml
       KONG_DNS_ORDER: LAST,A,CNAME
       KONG_PLUGINS: request-transformer,cors,key-auth,acl

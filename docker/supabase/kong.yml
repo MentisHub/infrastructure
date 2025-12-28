@@ -4,11 +4,7 @@ _transform: true
 consumers:
   - username: service_role
     keyauth_credentials:
-      - key: ${SUPABASE_SERVICE_KEY}
-
-acls:
-  - consumer: service_role
-    group: admin
+      - key: "{vault://env/SUPABASE_SERVICE_KEY}"
 
 services:
   - name: auth-v1-open
@@ -50,14 +46,6 @@ services:
           - /auth/v1/
     plugins:
       - name: cors
-      - name: key-auth
-        config:
-          hide_credentials: false
-      - name: acl
-        config:
-          hide_groups_header: true
-          allow:
-            - admin
 
   - name: rest-v1
     url: http://supabase-rest:3000/
@@ -87,7 +75,6 @@ services:
     plugins:
       - name: cors
 
-  # Meta routes
   - name: meta
     url: http://supabase-meta:8080/
     routes:
