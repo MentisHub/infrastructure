@@ -44,6 +44,8 @@ services:
       - "max_replication_slots=10"
       - "-c"
       - "max_wal_senders=10"
+    networks:
+      - mentishub-network
 
   supabase-auth:
     image: supabase/gotrue:v2.183.0
@@ -53,6 +55,8 @@ services:
         condition: service_healthy
     ports:
       - "9999:9999"
+    networks:
+      - mentishub-network
     environment:
       GOTRUE_API_HOST: 0.0.0.0
       GOTRUE_API_PORT: 9999
@@ -102,6 +106,8 @@ services:
     container_name: supabase-rest
     ports:
       - "3004:3000"
+    networks:
+      - mentishub-network
     environment:
       PGRST_DB_URI: postgres://authenticator:${POSTGRES_PASSWORD}@supabase-db:${POSTGRES_PORT}/${POSTGRES_DB}
       PGRST_DB_SCHEMAS: ${PGRST_DB_SCHEMAS}
@@ -121,6 +127,8 @@ services:
       - "5000:5000"
     volumes:
       - supabase_storage_data:/var/lib/storage:z
+    networks:
+      - mentishub-network
     environment:
       SERVICE_KEY: ${SERVICE_ROLE_KEY}
       POSTGREST_URL: http://supabase-rest:3000
@@ -160,6 +168,8 @@ services:
       - "${KONG_HTTPS_PORT}:8443"
     volumes:
       - ../supabase/kong.yml:/home/kong/kong.yml:ro
+    networks:
+      - mentishub-network
     environment:
       KONG_DATABASE: "off"
       KONG_VAULTS: env
@@ -183,6 +193,8 @@ services:
     depends_on:
       supabase-kong:
         condition: service_started
+    networks:
+      - mentishub-network
     environment:
       HOSTNAME: "::"
       STUDIO_PG_META_URL: http://supabase-meta:8080
@@ -202,6 +214,8 @@ services:
     depends_on:
       supabase-db:
         condition: service_healthy
+    networks:
+      - mentishub-network
     environment:
       PG_META_PORT: 8080
       PG_META_DB_HOST: supabase-db
@@ -215,12 +229,18 @@ services:
     container_name: otel-collector
     volumes:
       - ../observability/otel-collector.yaml:/etc/otelcol/config.yaml
+      - vault_certs:/etc/otel/certs:ro
     ports:
       - "4317:4317"
       - "4318:4318"
       - "13133:13133"
       - "55679:55679"
+    networks:
+      - mentishub-network
     command: ["--config=/etc/otelcol/config.yaml"]
+    depends_on:
+      vault-init:
+        condition: service_completed_successfully
 
   prometheus:
     image: prom/prometheus:v3.8.0
@@ -230,6 +250,8 @@ services:
     volumes:
       - ../observability/prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus_data:/prometheus
+    networks:
+      - mentishub-network
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
       - "--storage.tsdb.path=/prometheus"
@@ -246,6 +268,8 @@ services:
     volumes:
       - ../observability/loki.yaml:/etc/loki/local-config.yaml
       - loki_data:/loki
+    networks:
+      - mentishub-network
     command: -config.file=/etc/loki/local-config.yaml
     depends_on:
       - otel-collector
@@ -255,10 +279,11 @@ services:
     container_name: tempo
     ports:
       - "3200:3200"
-      - "4319:4317"
     volumes:
       - ../observability/tempo.yaml:/etc/tempo/tempo.yaml
       - tempo_data:/var/tempo
+    networks:
+      - mentishub-network
     command: ["-config.file=/etc/tempo/tempo.yaml"]
 
   grafana:
@@ -269,6 +294,8 @@ services:
     volumes:
       - ../observability/grafana/provisioning:/etc/grafana/provisioning
       - grafana_data:/var/lib/grafana
+    networks:
+      - mentishub-network
     environment:
       GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER}
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
@@ -285,6 +312,7 @@ volumes:
   loki_data:
   tempo_data:
   grafana_data:
+  vault_certs:
 
 networks:
   mentishub-network:
