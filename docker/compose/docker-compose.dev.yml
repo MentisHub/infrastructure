@@ -161,6 +161,21 @@ services:
       supabase-rest:
         condition: service_started
 
+  supabase-storage-init:
+    image: curlimages/curl:8.18.0
+    container_name: supabase-storage-init
+    networks:
+      - mentishub-network
+    environment:
+      SERVICE_ROLE_KEY: ${SERVICE_ROLE_KEY}
+    volumes:
+      - ../supabase/init-storage-buckets.sh:/init-storage-buckets.sh:ro
+    entrypoint: ["/bin/sh", "/init-storage-buckets.sh"]
+    depends_on:
+      supabase-storage:
+        condition: service_healthy
+    restart: "no"
+
   supabase-kong:
     image: kong:3.9.1
     container_name: supabase-kong
@@ -265,6 +280,7 @@ services:
       VAULT_ADDR: http://vault:8200
       VAULT_ROLE_ID: ${VAULT_ROLE_ID}
       VAULT_SECRET_ID: ${VAULT_SECRET_ID}
+      CERT_DOMAIN: ${CERT_DOMAIN:-localhost}
     networks:
       - mentishub-network
     entrypoint: /bin/sh
