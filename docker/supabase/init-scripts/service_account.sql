@@ -57,6 +57,13 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA assistant
 ALTER DEFAULT PRIVILEGES IN SCHEMA assistant
   GRANT EXECUTE ON FUNCTIONS TO service_account;
 
+-- Grant privileges for tables created by postgres (Prisma migrations)
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA assistant
+  GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO service_account;
+
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA assistant
+  GRANT USAGE, SELECT ON SEQUENCES TO service_account;
+
 GRANT USAGE ON SCHEMA platform TO service_account;
 GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA platform TO service_account;
 GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA platform TO service_account;
@@ -70,3 +77,10 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA platform
 
 ALTER DEFAULT PRIVILEGES IN SCHEMA platform
   GRANT EXECUTE ON FUNCTIONS TO service_account;
+
+-- Grant privileges for tables created by postgres (Prisma migrations)
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA platform
+  GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO service_account;
+
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA platform
+  GRANT USAGE, SELECT ON SEQUENCES TO service_account;
