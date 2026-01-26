@@ -161,6 +161,21 @@ services:
       supabase-rest:
         condition: service_started
 
+  supabase-storage-init:
+    image: curlimages/curl:8.18.0
+    container_name: supabase-storage-init
+    networks:
+      - mentishub-network
+    environment:
+      SERVICE_ROLE_KEY: ${SERVICE_ROLE_KEY}
+    volumes:
+      - ../supabase/init-storage-buckets.sh:/init-storage-buckets.sh:ro
+    entrypoint: ["/bin/sh", "/init-storage-buckets.sh"]
+    depends_on:
+      supabase-storage:
+        condition: service_healthy
+    restart: "no"
+
   supabase-kong:
     image: kong:3.9.1
     container_name: supabase-kong
@@ -265,6 +280,7 @@ services:
       VAULT_ADDR: http://vault:8200
       VAULT_ROLE_ID: ${VAULT_ROLE_ID}
       VAULT_SECRET_ID: ${VAULT_SECRET_ID}
+      CERT_DOMAIN: ${CERT_DOMAIN:-localhost}
     networks:
       - mentishub-network
     entrypoint: /bin/sh
@@ -327,31 +343,31 @@ services:
     depends_on:
       - otel-collector
 
-  loki:
-    image: grafana/loki:3.5.8
-    container_name: loki
-    ports:
-      - "3100:3100"
-    volumes:
-      - ../observability/loki.yaml:/etc/loki/local-config.yaml
-      - loki_data:/loki
-    networks:
-      - mentishub-network
-    command: -config.file=/etc/loki/local-config.yaml
-    depends_on:
-      - otel-collector
+  #loki:
+  #  image: grafana/loki:3.5.8
+  #  container_name: loki
+  #  ports:
+  #    - "3100:3100"
+  #  volumes:
+  #    - ../observability/loki.yaml:/etc/loki/local-config.yaml
+  #    - loki_data:/loki
+  #  networks:
+  #    - mentishub-network
+  #  command: -config.file=/etc/loki/local-config.yaml
+  #  depends_on:
+  #    - otel-collector
 
-  tempo:
-    image: grafana/tempo:main-28beefe
-    container_name: tempo
-    ports:
-      - "3200:3200"
-    volumes:
-      - ../observability/tempo.yaml:/etc/tempo/tempo.yaml
-      - tempo_data:/var/tempo
-    networks:
-      - mentishub-network
-    command: ["-config.file=/etc/tempo/tempo.yaml"]
+  #tempo:
+  #  image: grafana/tempo:main-28beefe
+  #  container_name: tempo
+  #  ports:
+  #    - "3200:3200"
+  #  volumes:
+  #    - ../observability/tempo.yaml:/etc/tempo/tempo.yaml
+  #    - tempo_data:/var/tempo
+  #  networks:
+  #    - mentishub-network
+  #  command: ["-config.file=/etc/tempo/tempo.yaml"]
 
   grafana:
     image: grafana/grafana:12.1
@@ -376,8 +392,8 @@ volumes:
   supabase_db_data:
   supabase_storage_data:
   prometheus_data:
-  loki_data:
-  tempo_data:
+  #loki_data:
+  #tempo_data:
   grafana_data:
   vault_certs:
   vault_data:

@@ -7,12 +7,16 @@ receivers:
           cert_file: /etc/otel/certs/otel-server.crt
           key_file: /etc/otel/certs/otel-server.key
           client_ca_file: /etc/otel/certs/ca.crt
+          client_ca_file_reload: true
+          require_client_auth: true
       http:
         endpoint: 0.0.0.0:4318
         tls:
           cert_file: /etc/otel/certs/otel-server.crt
           key_file: /etc/otel/certs/otel-server.key
           client_ca_file: /etc/otel/certs/ca.crt
+          client_ca_file_reload: true
+          require_client_auth: true
 
 processors:
   batch:
@@ -34,15 +38,15 @@ exporters:
     endpoint: "0.0.0.0:8889"
     namespace: mentishub
 
-  otlp/tempo:
-    endpoint: tempo:4317
-    tls:
-      insecure: true
+  #otlp/tempo:
+  #  endpoint: tempo:4317
+  #  tls:
+  #    insecure: true
 
-  otlphttp/loki:
-    endpoint: http://loki:3100/otlp
-    tls:
-      insecure: true
+  #otlphttp/loki:
+  #  endpoint: http://loki:3100/otlp
+  #  tls:
+  #    insecure: true
 
   debug:
     verbosity: detailed
@@ -51,20 +55,20 @@ exporters:
 
 service:
   pipelines:
-    traces:
-      receivers: [otlp]
-      processors: [memory_limiter, batch, resource]
-      exporters: [otlp/tempo, debug]
+    #traces:
+    #  receivers: [otlp]
+    #  processors: [memory_limiter, batch, resource]
+    #  exporters: [otlp/tempo, debug]
 
     metrics:
       receivers: [otlp]
       processors: [memory_limiter, batch, resource]
       exporters: [prometheus, debug]
 
-    logs:
-      receivers: [otlp]
-      processors: [memory_limiter, batch, resource]
-      exporters: [otlphttp/loki, debug]
+    #logs:
+    #  receivers: [otlp]
+    #  processors: [memory_limiter, batch, resource]
+    #  exporters: [otlphttp/loki, debug]
 
   telemetry:
     logs:

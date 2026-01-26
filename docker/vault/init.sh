@@ -3,6 +3,7 @@ set -e
 
 KEYS_FILE="/vault/file/init-keys.json"
 PKI_FLAG="/vault/file/.pki_initialized"
+CERT_DOMAIN="${CERT_DOMAIN:-localhost}"
 
 vault status 2>&1 | grep -q "Initialized.*true" || \
   vault operator init -key-shares=1 -key-threshold=1 -format=json > "$KEYS_FILE"
@@ -59,9 +60,10 @@ if [ ! -f "$PKI_FLAG" ]; then
     disable=false
 
   vault write pki_int/roles/otel-collector \
-    allowed_domains="otel-collector,otel-collector.mentishub.local" \
+    allowed_domains="otel-collector,otel-collector.mentishub.local,${CERT_DOMAIN}" \
     allow_bare_domains=true \
     allow_subdomains=true \
+    allow_ip_sans=true \
     max_ttl=2160h \
     ttl=720h \
     key_bits=2048 \
@@ -70,9 +72,10 @@ if [ ! -f "$PKI_FLAG" ]; then
     generate_lease=true
 
   vault write pki_int/roles/platform-backend \
-    allowed_domains="platform-backend.mentishub.local" \
+    allowed_domains="platform-backend.mentishub.local,superlink,${CERT_DOMAIN}" \
     allow_bare_domains=true \
     allow_subdomains=true \
+    allow_ip_sans=true \
     max_ttl=2160h \
     ttl=720h \
     key_bits=2048 \
@@ -107,6 +110,12 @@ path "pki/root/sign-intermediate" {
 }
 path "sys/mounts/*" {
   capabilities = ["create", "read", "update", "delete"]
+}
+path "sys/policy/*" {
+  capabilities = ["create", "read", "update", "delete"]
+}
+path "auth/approle/role/*" {
+  capabilities = ["create", "read", "update", "delete", "list"]
 }
 path "pki_org_*" {
   capabilities = ["create", "read", "update", "delete", "list", "sudo"]
