@@ -10,3 +10,6 @@
 	path = fl-app
 	url = https://github.com/MentisHub/fl-app.git
 	branch = main
+[submodule "flower"]
+	path = flower
+	url = https://github.com/MentisHub/flower.git
