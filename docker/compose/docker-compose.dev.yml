@@ -254,10 +254,6 @@ services:
       - "55679:55679"
     networks:
       - mentishub-network
-    depends_on:
-      platform-backend:
-        condition: service_healthy
-        restart: true
     restart: on-failure:2
 
   prometheus:
