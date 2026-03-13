@@ -1,0 +1,10 @@
+[submodule "flower"]
+	path = flower
+	url = https://github.com/MentisHub/flower.git
+	branch = mentishub
+[submodule "platform"]
+	path = platform
+	url = https://github.com/MentisHub/platform.git
+[submodule "fl-app"]
+	path = fl-app
+	url = https://github.com/MentisHub/fl-app.git

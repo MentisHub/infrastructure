@@ -1,9 +1,6 @@
 name: mentishub
 
 include:
-  - path: ../../assistant/docker/docker-compose.dev.yml
-    env_file: ../env/.env.dev
-
   - path: ../../platform/docker/docker-compose.dev.yml
     env_file: ../env/.env.dev
 

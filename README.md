@@ -17,16 +17,19 @@ mkdir certs
 openssl genrsa -out certs/ca.key 4096
 
 openssl req -new -x509 -days 3650 -key certs/ca.key -out certs/ca.crt \
-  -subj "/C=BR/ST=State/L=City/O=MentisHub/CN=MentisHub CA"
+  -subj "/C=BR/ST=State/L=City/O=MentisHub/CN=MentisHub CA" \
+  -addext "basicConstraints=critical,CA:TRUE" \
+  -addext "subjectKeyIdentifier=hash" \
+  -addext "keyUsage=critical,keyCertSign,cRLSign"
 
 openssl genrsa -out certs/server.key 4096
 
 openssl req -new -key certs/server.key -out certs/server.csr \
-  -subj "/C=BR/ST=State/L=City/O=MentisHub/CN=localhost"
+  -subj "/C=BR/ST=State/L=City/O=MentisHub/CN=otel-collector"
 
 openssl x509 -req -in certs/server.csr -CA certs/ca.crt -CAkey certs/ca.key \
   -CAcreateserial -out certs/server.crt -days 3650 -sha256 \
-  -extfile <(printf "authorityKeyIdentifier=keyid,issuer\nbasicConstraints=CA:FALSE\nkeyUsage=digitalSignature,keyEncipherment\nsubjectAltName=DNS:localhost,DNS:backend,DNS:otel-collector,DNS:superlink,IP:127.0.0.1")
+  -extfile <(printf "basicConstraints=CA:FALSE\nsubjectKeyIdentifier=hash\nauthorityKeyIdentifier=keyid:always,issuer\nkeyUsage=critical,digitalSignature,keyEncipherment\nextendedKeyUsage=serverAuth\nsubjectAltName=DNS:localhost,DNS:backend,DNS:otel-collector,DNS:superlink,IP:127.0.0.1")
 
 rm certs/server.csr certs/ca.srl
 ```
